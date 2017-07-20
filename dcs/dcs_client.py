@@ -16,6 +16,19 @@ import json
 __author__ = "hyxbiao"
 __version__ = "0.0.1"
 
+
+class TimeOutHTTP20Adapter(HTTP20Adapter):
+    def __init__(self, timeout = 5):
+        super(TimeOutHTTP20Adapter, self).__init__()
+        self.timeout = timeout
+
+    def get_connection(self, host, port, scheme, cert=None):
+        conn = super(TimeOutHTTP20Adapter, self).get_connection(host, port, scheme, cert)
+        if conn._sock:
+            conn._sock.settimeout(self.timeout)
+        return conn
+
+
 class DcsClient(object):
     def __init__(self, conf):
         self._conf = conf
@@ -25,7 +38,8 @@ class DcsClient(object):
         self._api_events = self._base_url + self._conf['api']['events'] 
 
         self._sess = requests.Session()
-        self._sess.mount(self._base_url, HTTP20Adapter())
+        #self._sess.mount(self._base_url, HTTP20Adapter())
+        self._sess.mount(self._base_url, TimeOutHTTP20Adapter(30))
 
     def init_downstream(self):
         headers = self._build_headers()
@@ -122,7 +136,7 @@ class DcsClient(object):
                 "name" : "VolumeState"
             },
             "payload" : {
-                "volume" : 50,
+                "volume" : 80,
                 "muted" : False
             }
         }]

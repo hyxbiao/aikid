@@ -35,12 +35,15 @@ class AIKit(object):
 
         with self._micro as source:
             while True:
+                audio_in.smart_truncate()
+
                 print("Say something!")
                 data = self._rec.listen(source)
                 print("Say done!")
                 audio_in.append(data.get_raw_data())
                 audio_out = self._dcs.echo(audio_in)
-                self.play(audio_out)
+                if audio_out:
+                    self.play(audio_out)
 
     def play(self, stream):
         p = Popen(['mplayer', '-cache', '1024', '-'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)   

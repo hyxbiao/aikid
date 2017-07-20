@@ -2,7 +2,7 @@
 from __future__ import print_function
 import sys
 import io
-sys.path.insert(0, '/Users/hyxbiao/dep/github/http/hyper')
+#sys.path.insert(0, '/Users/hyxbiao/dep/github/http/hyper')
 import requests
 
 from hyper.contrib import HTTP20Adapter

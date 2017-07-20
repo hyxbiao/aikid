@@ -1,0 +1,10 @@
+dcs:
+    host: dueros-h2.baidu.com
+    protocol: https
+
+    api: 
+        directive: /dcs/v1/directives
+        events: /dcs/v1/events
+
+    device_id: hyxbiao_aikit
+    oauth_token: 23.0e617b06679ee45113810a4252139a71.2592000.1502932213.151016915-9892205

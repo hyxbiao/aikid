@@ -38,8 +38,8 @@ class DcsClient(object):
         self._api_events = self._base_url + self._conf['api']['events'] 
 
         self._sess = requests.Session()
-        #self._sess.mount(self._base_url, HTTP20Adapter())
-        self._sess.mount(self._base_url, TimeOutHTTP20Adapter(30))
+        self._sess.mount(self._base_url, HTTP20Adapter())
+        #self._sess.mount(self._base_url, TimeOutHTTP20Adapter(30))
 
     def init_downstream(self):
         headers = self._build_headers()
@@ -62,22 +62,44 @@ class DcsClient(object):
         )
         headers['Content-Type'] = data.content_type
 
-        r = self._sess.post(self._api_events,
-                headers=headers,
-                data=data,
-                #timeout=60,
-                stream=True)
+        try:
+            r = self._sess.post(self._api_events,
+                    headers=headers,
+                    data=data,
+                    #timeout=60,
+                    stream=True)
+        except ssl.SSLError as e:
+            print(e)
+            return None
 
-        response = decoder.MultipartDecoder.from_response(r)
-        stream = None
-        for part in response.parts:
+        name, stream = self.get_audio_out(r)
+        return stream
+
+    def get_audio_out(self, response):
+
+        data = decoder.MultipartDecoder.from_response(response)
+        for part in data.parts:
             print(part.headers)
             content_type = part.headers['Content-Type']
             if content_type == 'application/octet-stream':
-                stream = part.content
+                pass
             else:
                 print(part.content)
-        return stream
+
+        stream = None
+        speak_cmd = json.loads(data.parts[0].content)
+        header = speak_cmd['directive']['header']
+        payload = speak_cmd['directive']['payload']
+        name = header['name']
+        if name == 'Speak':
+            stream = data.parts[1].content
+        elif name == 'Play':
+            stream = payload['audioItem']['stream']['url']
+        else:
+            #raise ValueError('Not support name: {}'.format(name))
+            pass
+
+        return name, stream
 
     def _build_headers(self):
         headers = {

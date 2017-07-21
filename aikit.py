@@ -36,6 +36,7 @@ class AIKit(object):
         with self._micro as source:
             while True:
                 audio_in.smart_truncate()
+                #self._rec.adjust_for_ambient_noise(source)
 
                 print("Say something!")
                 data = self._rec.listen(source)
@@ -46,8 +47,14 @@ class AIKit(object):
                     self.play(audio_out)
 
     def play(self, stream):
-        p = Popen(['mplayer', '-cache', '1024', '-'], stdout=PIPE, stdin=PIPE, stderr=STDOUT)   
-        stdout = p.communicate(input=stream)[0]
+        if stream.startswith('http'):
+            p = Popen(['mplayer', '-cache', '1024', stream], 
+                    stdout=PIPE, stderr=STDOUT)
+        else:
+            #p = Popen(['mplayer', '-cache', '1024', '-idle', '-slave', '-'], 
+            p = Popen(['mplayer', '-cache', '1024', '-'], 
+                    stdout=PIPE, stdin=PIPE, stderr=STDOUT)   
+            stdout = p.communicate(input=stream)[0]
 
 def main():
     filename = 'config.yaml'

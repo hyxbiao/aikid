@@ -4,6 +4,7 @@ import sys
 import io
 import requests
 
+import ssl
 from hyper.contrib import HTTP20Adapter
 from hyper import HTTPConnection
 from hyper import HTTP20Connection
@@ -70,14 +71,16 @@ class DcsClient(object):
                     stream=True)
         except ssl.SSLError as e:
             print(e)
-            return None
+            return []
 
-        name, stream = self.get_audio_out(r)
-        return stream
+        return self.get_audio_out(r)
+        #name, stream = self.get_audio_out(r)
+        #return stream
 
     def get_audio_out(self, response):
 
         data = decoder.MultipartDecoder.from_response(response)
+        '''
         for part in data.parts:
             print(part.headers)
             content_type = part.headers['Content-Type']
@@ -85,8 +88,30 @@ class DcsClient(object):
                 pass
             else:
                 print(part.content)
-
         stream = None
+        name = None
+        '''
+
+        for part in data.parts:
+            print(part.headers)
+            content_type = part.headers['Content-Type']
+            if content_type == 'application/octet-stream':
+                stream = part.content
+                print('------------Audio Speak, length: {}'.format(len(stream)))
+                yield stream
+
+            else:
+                print(part.content)
+                cmd = json.loads(part.content)
+                name = cmd['directive']['header']['name']
+                if name == 'Speak':
+                    continue
+                elif name == 'Play':
+                    payload = cmd['directive']['payload']
+                    stream = payload['audioItem']['stream']['url']
+                    print('------------Audio Play: ' + stream)
+                    yield stream
+        '''
         speak_cmd = json.loads(data.parts[0].content)
         header = speak_cmd['directive']['header']
         payload = speak_cmd['directive']['payload']
@@ -100,6 +125,7 @@ class DcsClient(object):
             pass
 
         return name, stream
+        '''
 
     def _build_headers(self):
         headers = {

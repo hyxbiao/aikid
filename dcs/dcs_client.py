@@ -2,6 +2,7 @@
 from __future__ import print_function
 import sys
 import io
+sys.path.insert(0, '/Users/hyxbiao/dep/github/http/hyper')
 import requests
 
 import ssl
@@ -67,7 +68,7 @@ class DcsClient(object):
             r = self._sess.post(self._api_events,
                     headers=headers,
                     data=data,
-                    #timeout=60,
+                    timeout=60,
                     stream=True)
         except ssl.SSLError as e:
             print(e)

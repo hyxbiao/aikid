@@ -11,6 +11,7 @@ import speech_recognition as sr
 from requests_toolbelt.multipart import encoder
 from dcs.dcs_client import DcsClient
 from player import PlayerManager
+from speech import Speech
 
 __author__ = "hyxbiao"
 __version__ = "0.0.1"
@@ -25,13 +26,14 @@ class AIKit(object):
         self._rec = sr.Recognizer()
         self._micro = sr.Microphone(sample_rate=16000)
 
-
         with self._micro as source:
             self._rec.adjust_for_ambient_noise(source)
 
         self._dcs = DcsClient(self._conf['dcs'])
 
         self._player = PlayerManager()
+
+        self._speech = Speech(self._conf['aip'])
 
     def close(self):
         self._player.close()
@@ -48,7 +50,17 @@ class AIKit(object):
                 print("Say something!")
                 data = self._rec.listen(source)
                 print("Say done!")
-                audio_in.append(data.get_raw_data())
+
+                raw_audio_data = data.get_raw_data()
+                #asr
+                text = self._speech.asr(raw_audio_data)
+                if text:
+                    print("You say: " + text)
+                    audio_out = self._speech.synthesis(text)
+                    if audio_out is not False:
+                        self._player.play(audio_out)
+
+                audio_in.append(raw_audio_data)
                 audio_outs = self._dcs.echo(audio_in)
                 for audio_out in audio_outs:
                     self._player.play(audio_out)

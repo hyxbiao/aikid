@@ -8,3 +8,11 @@ dcs:
 
     device_id: hyxbiao_aikit
     oauth_token: 23.0e617b06679ee45113810a4252139a71.2592000.1502932213.151016915-9892205
+aip:
+    app_id: '9924864'
+    api_key: s1gaBk03gSMtmihyO6dff29j
+    secret_key: Pdli8uCiolm2NdB3GQL0X8wq5YW9a4Fd
+
+    synthesis:
+        options:
+            per: 4

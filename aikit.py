@@ -70,13 +70,16 @@ class AIKit(object):
         self._player.play(url)
 
         time.sleep(30)
-        url = "http://yinyueshiting.baidu.com/data2/music/134370487/134370487.mp3?xcode=70dceb6d6009750519a583210f1a2e09"
+        print('next\n')
+        url = "http://other.web.rd01.sycdn.kuwo.cn/dba2c10f664aecdcacff356f2bd54f97/59794291/resource/n1/26/46/2405753683.mp3"
         self._player.play(url)
 
         time.sleep(30)
+        print('next\n')
         url = "http://other.web.rd01.sycdn.kuwo.cn/f7841fdf67a3252baf7656331b7a7295/5972035c/resource/n3/27/60/150178036.mp3"
         self._player.play(url)
 
+        time.sleep(30)
 
 def main():
     filename = 'config.yaml'

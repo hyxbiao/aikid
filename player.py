@@ -10,8 +10,9 @@ __author__ = "hyxbiao"
 __version__ = "0.0.1"
 
 class MPlayer(object):
-    def __init__(self, args=None, daemon=False):
-        command = ['mplayer', '-msglevel', 'global=6', '-msglevel', 'cplayer=4', '-cache', '1024'] 
+    def __init__(self, args=None, daemon=False,
+                 stdin=PIPE, stdout=PIPE, stderr=PIPE):
+        command = ['mplayer', '-quiet', '-msglevel', 'global=6', '-msglevel', 'cplayer=4', '-cache', '1024'] 
         if daemon:
             command += ['-idle', '-slave']
         if args:
@@ -34,12 +35,16 @@ class MPlayer(object):
         player = cls(['-'])
         return player.communicate(data)
 
+    @classmethod
+    def play(cls, path):
+        player = cls([path], stdin=None, stdout=None, stderr=None)
+        return player
+
     def communicate(self, data):
         stdout = self._player.communicate(data)
         return stdout
 
     def send(self, data):
-        #stdout = self._player.communicate(data)
         self._player.stdin.write(data)
         self._player.stdin.flush()
         #self._player.wait()
@@ -70,7 +75,6 @@ class PlayerManager(object):
         print('start play')
         if stream.startswith('http'):
             self._mp3_player.cmd('stop')
-            time.sleep(0.1)
             self._mp3_player.cmd('loadfile ' + stream)
         else:
             #self._echo_player.send(stream)
@@ -78,5 +82,3 @@ class PlayerManager(object):
 
     def close(self):
         self._mp3_player.close()
-        #self._echo_player.close()
-
